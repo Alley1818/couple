@@ -2,10 +2,10 @@ import type { Metadata } from 'next'
 import './globals.css'
 import type { Viewport } from 'next';
 
-export const metadata: Metadata = {
-  title: 'Couple',
-  description: 'Планировать свидания вместе',
-}
+export const metadata = {
+  title: 'DateApp — Планировщик для пар',
+  description: 'Приватное приложение для планирования свиданий',
+};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
