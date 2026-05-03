@@ -41,7 +41,7 @@ export default function ProfileClient({ user, couple, partner }: ProfileClientPr
     const [copied, setCopied] = useState(false);
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
-    const inviteUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/invite/${couple.invite_code}`;
+    const inviteUrl = `${typeof window !== 'undefined' ? window.location.origin : 'https://couple-rose.vercel.app'}/invite/${couple.invite_code}`;
 
     const handleSaveName = async () => {
         if (!name.trim() || name === user.display_name) return;

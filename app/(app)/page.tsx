@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
-import { redirect } from 'next/navigation';
 import HomeClient from './HomeClient';
+import LandingPage from '@/components/landing/LandingPage';
 
 export const revalidate = 60;
 
@@ -8,7 +8,9 @@ export default async function HomePage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  if (!user) redirect('/login');
+  if (!user) {
+    return <LandingPage />;
+  }
 
   const { data: currentUser } = await supabase
       .from('users')
@@ -16,12 +18,17 @@ export default async function HomePage() {
       .eq('id', user.id)
       .single();
 
-  if (!currentUser?.couple_id) redirect('/onboarding');
+  // Нет пары — онбординг
+  if (!currentUser?.couple_id) {
+    // Можно редирект или показать онбординг прямо тут
+    // Пока просто landing для простоты
+    return <LandingPage />;
+  }
 
+  // ... остальной код для авторизованных
   const now = new Date().toISOString();
 
   const [{ data: nextDate }, { data: pendingDates }, { data: partnerRows }] = await Promise.all([
-    // Ближайшее подтверждённое свидание
     supabase
         .from('dates')
         .select('*')
@@ -31,7 +38,6 @@ export default async function HomePage() {
         .order('date_at', { ascending: true })
         .limit(1)
         .single(),
-    // Ожидающие подтверждения (для текущего пользователя — где он не создатель)
     supabase
         .from('dates')
         .select('*')
@@ -39,7 +45,6 @@ export default async function HomePage() {
         .eq('status', 'proposed')
         .neq('created_by', user.id)
         .order('created_at', { ascending: false }),
-    // Партнёр — массив вместо .single(), чтобы не падать при отсутствии
     supabase
         .from('users')
         .select('id, display_name')
@@ -50,7 +55,6 @@ export default async function HomePage() {
 
   const partner = partnerRows && partnerRows.length > 0 ? partnerRows[0] : null;
 
-  // Если нет confirmed в будущем — ищем любое proposed с датой
   let heroDate = nextDate;
   if (!heroDate) {
     const { data: proposedWithDate } = await supabase

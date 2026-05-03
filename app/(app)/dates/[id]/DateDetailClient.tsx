@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { format, differenceInDays, differenceInHours, differenceInMinutes } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { motion, AnimatePresence } from 'framer-motion';
+import DateChat from '@/components/dates/DateChat';
 import {
   ArrowLeft,
   Calendar,
@@ -440,7 +441,10 @@ export default function DateDetailClient({
                         </div>
                       </div>
                   )}
-
+                  {/* Чат */}
+                  {date.status !== 'cancelled' && (
+                      <DateChat dateId={date.id} currentUserId={currentUser.id} />
+                  )}
                   {/* Действия */}
                   <div className="space-y-3 pt-4">
                     {canConfirm && (

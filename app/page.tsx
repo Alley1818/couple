@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import HomeClient from '@/app/(app)/HomeClient';
-import LandingPage from '@/app/(app)/LandingPage';
+import LandingPage from '@/components/landing/LandingPage';
 
 export const revalidate = 60;
 
