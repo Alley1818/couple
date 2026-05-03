@@ -103,7 +103,7 @@ export default function HomeClient({ user, partner, heroDate, pendingDates }: Ho
                             Привет, {user.display_name} <span className="inline-block animate-pulse">💕</span>
                         </h1>
                         <p className="mt-1 text-sm text-gray-500">
-                            {partner ? `С ${partner.display_name} всё прекрасно` : 'Ждём второго половинку'}
+                            {partner ? `С ${partner.display_name} всё прекрасно` : 'Ждём вторую половинку'}
                         </p>
                     </div>
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-rose-100 text-rose-500">
@@ -282,7 +282,7 @@ export default function HomeClient({ user, partner, heroDate, pendingDates }: Ho
                         </Link>
 
                         <Link
-                            href="/app/api/profile"
+                            href="/profile"
                             className="group flex flex-col items-center gap-3 rounded-2xl border border-rose-100 bg-white p-5 text-center shadow-sm transition hover:border-rose-300 hover:shadow-md"
                         >
                             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-50 text-purple-500 transition group-hover:bg-purple-500 group-hover:text-white">

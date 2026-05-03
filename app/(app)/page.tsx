@@ -20,7 +20,7 @@ export default async function HomePage() {
 
   const now = new Date().toISOString();
 
-  const [{ data: nextDate }, { data: pendingDates }, { data: partner }] = await Promise.all([
+  const [{ data: nextDate }, { data: pendingDates }, { data: partnerRows }] = await Promise.all([
     // Ближайшее подтверждённое свидание
     supabase
         .from('dates')
@@ -39,14 +39,16 @@ export default async function HomePage() {
         .eq('status', 'proposed')
         .neq('created_by', user.id)
         .order('created_at', { ascending: false }),
-    // Партнёр
+    // Партнёр — массив вместо .single(), чтобы не падать при отсутствии
     supabase
         .from('users')
         .select('id, display_name')
         .eq('couple_id', currentUser.couple_id)
         .neq('id', user.id)
-        .single(),
+        .limit(1),
   ]);
+
+  const partner = partnerRows && partnerRows.length > 0 ? partnerRows[0] : null;
 
   // Если нет confirmed в будущем — ищем любое proposed с датой
   let heroDate = nextDate;
