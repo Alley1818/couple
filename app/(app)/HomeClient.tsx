@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { format, differenceInDays, differenceInHours, differenceInMinutes } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { motion } from 'framer-motion';
-import NotificationBell from '@/components/layout/NotificationBell';
 import {
     Heart,
     Calendar,
@@ -17,6 +16,7 @@ import {
     Sparkles,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import FloatingNav from '@/components/layout/FloatingNav';
 
 interface DateItem {
     id: string;
@@ -107,7 +107,9 @@ export default function HomeClient({ user, partner, heroDate, pendingDates }: Ho
                             {partner ? `С ${partner.display_name} всё прекрасно` : 'Ждём вторую половинку'}
                         </p>
                     </div>
-                    <NotificationBell />
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-rose-100 text-rose-500">
+                        <Bell className="h-5 w-5" />
+                    </div>
                 </div>
 
                 {/* Hero: ближайшее свидание */}
@@ -117,7 +119,6 @@ export default function HomeClient({ user, partner, heroDate, pendingDates }: Ho
                         animate={{ opacity: 1, y: 0 }}
                         className="relative mb-8 overflow-hidden rounded-3xl bg-gradient-to-br from-rose-400 via-rose-500 to-pink-600 p-6 text-white shadow-xl shadow-rose-500/20"
                     >
-                        {/* Декоративные круги */}
                         <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
                         <div className="absolute -bottom-8 -left-8 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
                         <div className="absolute right-10 top-10 h-3 w-3 rounded-full bg-white/30" />
@@ -183,8 +184,8 @@ export default function HomeClient({ user, partner, heroDate, pendingDates }: Ho
                                 Ожидают подтверждения
                             </h3>
                             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-rose-500 text-[10px] font-bold text-white">
-                {pendingDates.length}
-              </span>
+                                {pendingDates.length}
+                            </span>
                         </div>
 
                         <div className="space-y-3">
@@ -202,21 +203,21 @@ export default function HomeClient({ user, partner, heroDate, pendingDates }: Ho
                                             <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-gray-500">
                                                 {date.date_at && (
                                                     <span className="flex items-center gap-1">
-                            <Calendar className="h-3 w-3" />
+                                                        <Calendar className="h-3 w-3" />
                                                         {format(new Date(date.date_at), 'd MMMM', { locale: ru })}
-                          </span>
+                                                    </span>
                                                 )}
                                                 {(date.location || date.address) && (
                                                     <span className="flex items-center gap-1">
-                            <MapPin className="h-3 w-3" />
+                                                        <MapPin className="h-3 w-3" />
                                                         {date.location || date.address}
-                          </span>
+                                                    </span>
                                                 )}
                                                 {!date.date_at && (
                                                     <span className="flex items-center gap-1 text-amber-600">
-                            <Clock className="h-3 w-3" />
-                            Время не выбрано
-                          </span>
+                                                        <Clock className="h-3 w-3" />
+                                                        Время не выбрано
+                                                    </span>
                                                 )}
                                             </div>
                                         </div>
@@ -292,6 +293,8 @@ export default function HomeClient({ user, partner, heroDate, pendingDates }: Ho
                     </div>
                 </section>
             </div>
+
+            <FloatingNav />
         </div>
     );
 }

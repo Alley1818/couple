@@ -3,7 +3,7 @@ import './globals.css'
 import type { Viewport } from 'next';
 
 export const metadata = {
-  title: 'DateApp — Планировщик для пар',
+  title: 'DateApp',
   description: 'Приватное приложение для планирования свиданий',
 };
 
