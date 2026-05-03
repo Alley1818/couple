@@ -1,37 +1,61 @@
-# Зависимости
+# ─── Dependencies ─────────────────────────────
 node_modules
 .pnpm-debug.log*
 
-# Сборка Next.js
+# ─── Build outputs ────────────────────────────
 .next/
 out/
 build/
+dist/
 
-# Переменные окружения (САМОЕ ВАЖНОЕ)
-# Никогда не пушь реальные ключи от Supabase или API
+# ─── Environment variables ───────────
 .env
 .env.local
-.env.development.local
-.env.test.local
-.env.production.local
-.env*.local
+.env.*.local
+!.env.example
 
-# Логи
+# ─── Logs ───────────────────────────────────────
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+lerna-debug.log*
 
-# Системные файлы
+# ─── Testing ────────────────────────────────────
+coverage/
+.nyc_output/
+test-results/
+playwright-report/
+playwright/.cache/
+blob-report/
+vitest.config.ts.timestamp-*
+
+# ─── Supabase ─────────────────────────────────
+supabase/.temp/
+supabase/config.toml
+
+# ─── System files ─────────────────────────────
 .DS_Store
+Thumbs.db
 *.pem
 
-# IDE (VS Code, WebStorm)
+# ─── IDE / Editors ──────────────────────────────
 .vscode/
 .idea/
 *.swp
+*.swo
+*.swn
 *.lutke
+*.tmp
+*.temp
 
-# Кэш инструментов
+# ─── Cache / Lint ─────────────────────────────
 .eslintcache
 .stylelintcache
+.prettiercache
+*.tsbuildinfo
+
+# ─── Misc ─────────────────────────────────────
+*.local
+.vercel

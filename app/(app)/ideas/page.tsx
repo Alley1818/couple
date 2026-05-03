@@ -1,28 +1,46 @@
-import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
-import IdeaGrid from '@/components/IdeaGrid'
+import { createClient } from '@/lib/supabase/server';
+import { redirect } from 'next/navigation';
+import IdeaGrid from '@/components/ideas/IdeaGrid';
+import FloatingNav from '@/components/layout/FloatingNav';
+
+export const revalidate = 60;
 
 export default async function IdeasPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
-  const { data: profile } = await supabase.from('users').select('couple_id').eq('id', user.id).single()
-  if (!profile?.couple_id) redirect('/')
+    if (!user) redirect('/login');
 
-  const { data: ideas } = await supabase
-    .from('ideas')
-    .select('*, idea_votes(user_id)')
-    .eq('couple_id', profile.couple_id)
-    .order('created_at', { ascending: false })
+    const { data: currentUser } = await supabase
+        .from('users')
+        .select('couple_id')
+        .eq('id', user.id)
+        .single();
 
-  return (
-    <div className="px-4 pt-8 max-w-lg mx-auto">
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold">Банк идей</h1>
-        <p className="text-stone-500 text-sm mt-1">❤️ = оба хотят</p>
-      </div>
-      <IdeaGrid ideas={ideas ?? []} currentUserId={user.id} coupleId={profile.couple_id} />
-    </div>
-  )
+    if (!currentUser?.couple_id) redirect('/onboarding');
+
+    const [{ data: ideas }, { data: votes }] = await Promise.all([
+        supabase
+            .from('ideas')
+            .select('*')
+            .eq('couple_id', currentUser.couple_id)
+            .order('created_at', { ascending: false }),
+        supabase
+            .from('idea_votes')
+            .select('idea_id, user_id')
+            .in('idea_id', (await supabase.from('ideas').select('id').eq('couple_id', currentUser.couple_id)).data?.map(i => i.id) || []),
+    ]);
+
+    return (
+        <div className="min-h-screen bg-gradient-to-b from-rose-50/50 to-white pb-32">
+            <div className="mx-auto max-w-lg px-5 pt-8">
+                <div className="mb-8">
+                    <h1 className="text-3xl font-bold text-gray-900">Идеи</h1>
+                    <p className="mt-1 text-sm text-gray-500">Банк идей для свиданий</p>
+                </div>
+                <IdeaGrid ideas={ideas || []} votes={votes || []} currentUserId={user.id} />
+            </div>
+            <FloatingNav />
+        </div>
+    );
 }

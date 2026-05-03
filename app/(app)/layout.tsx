@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import BottomNav from '@/components/BottomNav'
+import BottomNav from '@/components/layout/FloatingNav'
 import NoCoupleClient from '@/components/NoCoupleClient'
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {

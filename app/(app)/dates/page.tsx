@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { format } from 'date-fns'
 import { ru } from 'date-fns/locale'
-import DateCard from '@/components/DateCard'
+import DateCard from '@/components/dates/DateCard'
 
 export const revalidate = 60
 

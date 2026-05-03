@@ -1,56 +1,66 @@
-import { createClient } from '@/lib/supabase/server'
-import { redirect, notFound } from 'next/navigation'
-import { format } from 'date-fns'
-import { ru } from 'date-fns/locale'
-import Link from 'next/link'
-import DateDetailClient from './DateDetailClient'
+import { createClient } from '@/lib/supabase/server';
+import { redirect } from 'next/navigation';
+import DateDetailClient from './DateDetailClient';
 
-export default async function DateDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>
-}) {
-  const { id } = await params
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+export const revalidate = 60;
 
-  const { data: profile } = await supabase
-    .from('users').select('couple_id').eq('id', user.id).single()
-  if (!profile?.couple_id) redirect('/')
+interface PageProps {
+  params: Promise<{ id: string }>;
+}
 
-  const { data: date } = await supabase
-    .from('dates').select('*').eq('id', id).eq('couple_id', profile.couple_id).single()
-  if (!date) notFound()
+export default async function DateDetailPage({ params }: PageProps) {
+  const { id } = await params;
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
-  // Фото этого свидания
-  const { data: files } = await supabase.storage
-    .from('date-photos')
-    .list(`${profile.couple_id}/${id}`)
+  if (!user) redirect('/login');
 
-  const photos: string[] = []
-  if (files && files.length > 0) {
-    for (const f of files) {
-      const { data } = supabase.storage
-        .from('date-photos')
-        .getPublicUrl(`${profile.couple_id}/${id}/${f.name}`)
-      photos.push(data.publicUrl)
-    }
-  }
+  const { data: currentUser } = await supabase
+      .from('users')
+      .select('id, display_name, couple_id')
+      .eq('id', user.id)
+      .single();
+
+  if (!currentUser?.couple_id) redirect('/onboarding');
+
+  const [{ data: date }, { data: partner }] = await Promise.all([
+    supabase
+        .from('dates')
+        .select('*')
+        .eq('id', id)
+        .eq('couple_id', currentUser.couple_id)
+        .single(),
+    supabase
+        .from('users')
+        .select('id, display_name')
+        .eq('couple_id', currentUser.couple_id)
+        .neq('id', user.id)
+        .single(),
+  ]);
+
+  if (!date) redirect('/dates');
+
+  // Получаем фото из Storage
+  const { data: photos } = await supabase.storage
+      .from('date-photos')
+      .list(`${currentUser.couple_id}/${date.id}`, { limit: 10 });
+
+  const photoUrls =
+      photos
+          ?.filter((p) => !p.name.startsWith('.'))
+          .map((p) => {
+            const { data } = supabase.storage
+                .from('date-photos')
+                .getPublicUrl(`${currentUser.couple_id}/${date.id}/${p.name}`);
+            return data.publicUrl;
+          }) || [];
 
   return (
-    <div className="max-w-lg mx-auto px-4 pt-6 pb-8">
-      {/* Назад */}
-      <Link href="/dates" className="inline-flex items-center gap-2 text-stone-400 hover:text-stone-600 text-sm mb-6">
-        ← Все свидания
-      </Link>
-
       <DateDetailClient
-        date={date}
-        currentUserId={user.id}
-        coupleId={profile.couple_id}
-        initialPhotos={photos}
+          date={date}
+          currentUser={currentUser}
+          partner={partner}
+          photos={photoUrls}
       />
-    </div>
-  )
+  );
 }
