@@ -126,7 +126,7 @@ export default function ProfileClient({ user, couple, partner }: ProfileClientPr
                             <h3 className="text-sm font-semibold text-gray-900">Пригласить партнёра</h3>
                         </div>
                         <p className="mb-3 text-xs text-gray-500">
-                            Отправь эту ссылку второму половинке. Она работает один раз.
+                            Отправь эту ссылку второй половинке. Она работает один раз.
                         </p>
                         <div className="flex gap-2">
                             <div className="flex-1 overflow-hidden rounded-xl border border-rose-100 bg-rose-50/50 px-4 py-2.5">

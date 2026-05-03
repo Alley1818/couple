@@ -16,10 +16,9 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: 'ID required' }, { status: 400 });
   }
 
-  // Проверяем, что свидание принадлежит паре пользователя
   const { data: currentUser } = await supabase
       .from('users')
-      .select('couple_id')
+      .select('couple_id, display_name')
       .eq('id', user.id)
       .single();
 
@@ -27,9 +26,10 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: 'No couple' }, { status: 403 });
   }
 
+  // Проверяем владение свиданием
   const { data: dateRecord } = await supabase
       .from('dates')
-      .select('couple_id')
+      .select('couple_id, created_by, title')
       .eq('id', id)
       .single();
 
@@ -37,6 +37,7 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
+  // Формируем updateData
   const updateData: Record<string, unknown> = {};
   if (status !== undefined) updateData.status = status;
   if (notes !== undefined) updateData.notes = notes;
@@ -48,6 +49,7 @@ export async function PATCH(req: NextRequest) {
   if (lng !== undefined) updateData.lng = lng;
   if (address !== undefined) updateData.address = address;
 
+  // Обновляем свидание
   const { data, error } = await supabase
       .from('dates')
       .update(updateData)
@@ -57,6 +59,27 @@ export async function PATCH(req: NextRequest) {
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  // Уведомление при подтверждении
+  if (status === 'confirmed' && dateRecord) {
+    const { data: partnerRows } = await supabase
+        .from('users')
+        .select('id')
+        .eq('couple_id', currentUser.couple_id)
+        .neq('id', user.id)
+        .limit(1);
+
+    if (partnerRows && partnerRows.length > 0) {
+      await supabase.from('notifications').insert({
+        couple_id: currentUser.couple_id,
+        user_id: dateRecord.created_by,
+        type: 'date_confirmed',
+        title: 'Свидание подтверждено!',
+        message: `${currentUser.display_name || 'Партнёр'} подтвердил(а) свидание "${dateRecord.title}"`,
+        link: `/dates/${id}`,
+      });
+    }
   }
 
   return NextResponse.json(data);
@@ -87,7 +110,6 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ error: 'No couple' }, { status: 403 });
   }
 
-  // Проверяем владение
   const { data: dateRecord } = await supabase
       .from('dates')
       .select('couple_id, created_by')
@@ -98,7 +120,6 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
-  // Удаляем фото из storage сначала
   const { data: files } = await supabase.storage
       .from('date-photos')
       .list(`${currentUser.couple_id}/${id}`);

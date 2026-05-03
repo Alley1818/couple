@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { format, differenceInDays, differenceInHours, differenceInMinutes } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { motion } from 'framer-motion';
+import NotificationBell from '@/components/layout/NotificationBell';
 import {
     Heart,
     Calendar,
@@ -106,9 +107,7 @@ export default function HomeClient({ user, partner, heroDate, pendingDates }: Ho
                             {partner ? `С ${partner.display_name} всё прекрасно` : 'Ждём вторую половинку'}
                         </p>
                     </div>
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-rose-100 text-rose-500">
-                        <Bell className="h-5 w-5" />
-                    </div>
+                    <NotificationBell />
                 </div>
 
                 {/* Hero: ближайшее свидание */}
