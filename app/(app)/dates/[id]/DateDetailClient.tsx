@@ -460,15 +460,18 @@ export default function DateDetailClient({
                     )}
 
                     {date.status === 'confirmed' && (
-                        <motion.button
-                            whileTap={{ scale: 0.98 }}
-                            onClick={() => handleStatusChange('done')}
-                            disabled={isLoading}
-                            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-rose-500 py-4 text-sm font-semibold text-white shadow-lg shadow-rose-500/25 transition hover:bg-rose-600 disabled:opacity-50"
-                        >
-                          <Check className="h-5 w-5" />
-                          Отметить как прошедшее
-                        </motion.button>
+                        <div className="pt-4 border-t border-gray-100">
+                          <button
+                              onClick={() => {
+                                if (confirm('Отметить свидание как прошедшее?')) {
+                                  handleStatusChange('done');
+                                }
+                              }}
+                              className="text-xs text-gray-400 hover:text-gray-600 transition"
+                          >
+                            ✓ Свидание уже прошло?
+                          </button>
+                        </div>
                     )}
 
                     {date.status === 'proposed' && isCreator && (

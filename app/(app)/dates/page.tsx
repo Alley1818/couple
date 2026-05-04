@@ -22,13 +22,11 @@ export default async function DatesPage() {
     .order('created_at', { ascending: false })
 
   const now = new Date()
-  // Без даты или будущие — "предстоящие"
   const upcoming = dates?.filter(d =>
     ['proposed', 'confirmed'].includes(d.status) &&
     (!d.date_at || new Date(d.date_at) >= now)
   ) ?? []
 
-  // Прошедшие
   const past = dates?.filter(d =>
     d.status === 'done' || (d.date_at && new Date(d.date_at) < now && d.status !== 'cancelled')
   ) ?? []

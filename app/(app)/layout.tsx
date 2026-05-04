@@ -7,6 +7,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
+
   if (!user) redirect('/login')
 
   const { data: profile } = await supabase
@@ -26,3 +27,15 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     </div>
   )
 }
+export const metadata = {
+  title: 'DateApp — Планировщик свиданий',
+  description: 'Планируйте свидания, делитесь идеями, храните воспоминания',
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon-32x32.png',
+    apple: '/apple-touch-icon.png',
+  },
+  manifest: '/manifest.json',
+  themeColor: '#f43f5e',
+};
+
