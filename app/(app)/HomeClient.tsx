@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { format, differenceInDays, differenceInHours, differenceInMinutes } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { motion } from 'framer-motion';
-import NotificationBell from '@/components/layout/NotificationBell';
 import {
     Heart,
     Calendar,
@@ -13,11 +12,11 @@ import {
     Clock,
     Plus,
     ChevronRight,
-    Bell,
     Sparkles,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import FloatingNav from '@/components/layout/FloatingNav';
+import NotificationBell from "@/components/layout/NotificationBell";
 
 interface DateItem {
     id: string;
@@ -28,6 +27,17 @@ interface DateItem {
     status: 'proposed' | 'confirmed' | 'done' | 'cancelled';
     created_by: string;
     address: string | null;
+}
+
+interface Memory {
+    id: string;
+    title: string;
+    description: string;
+    date_at: string;
+    location: string;
+    address: string;
+    users: { display_name: string };
+    photos: string[];
 }
 
 interface HomeClientProps {
@@ -42,6 +52,7 @@ interface HomeClientProps {
     } | null;
     heroDate: DateItem | null;
     pendingDates: DateItem[];
+    recentMemories: Memory[];
 }
 
 function CountdownHero({ targetDate }: { targetDate: string }) {
@@ -75,7 +86,13 @@ function CountdownHero({ targetDate }: { targetDate: string }) {
     );
 }
 
-export default function HomeClient({ user, partner, heroDate, pendingDates }: HomeClientProps) {
+export default function HomeClient({
+                                       user,
+                                       partner,
+                                       heroDate,
+                                       pendingDates,
+                                       recentMemories,
+                                   }: HomeClientProps) {
     const router = useRouter();
     const [confirmingId, setConfirmingId] = useState<string | null>(null);
 
@@ -238,6 +255,80 @@ export default function HomeClient({ user, partner, heroDate, pendingDates }: Ho
                                             Детали
                                         </Link>
                                     </div>
+                                </motion.div>
+                            ))}
+                        </div>
+                    </section>
+                )}
+
+                {/* Недавние воспоминания */}
+                {recentMemories.length > 0 && (
+                    <section className="mb-8">
+                        <div className="mb-4 flex items-center justify-between">
+                            <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
+                                Воспоминания
+                            </h3>
+                            <Link href="/memories" className="text-xs text-rose-500 font-medium">
+                                Все →
+                            </Link>
+                        </div>
+
+                        <div className="space-y-4">
+                            {recentMemories.map((memory, i) => (
+                                <motion.div
+                                    key={memory.id}
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: i * 0.1 }}
+                                >
+                                    <Link
+                                        href={`/dates/${memory.id}`}
+                                        className="group block overflow-hidden rounded-2xl border border-rose-100 bg-white shadow-sm transition hover:shadow-md"
+                                    >
+                                        {/* Фото */}
+                                        {memory.photos.length > 0 && (
+                                            <div className={`relative grid gap-0.5 ${memory.photos.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
+                                                {memory.photos.slice(0, 2).map((photo, idx) => (
+                                                    <div key={idx} className="aspect-[4/3] overflow-hidden">
+                                                        <img
+                                                            src={photo}
+                                                            alt=""
+                                                            className="h-full w-full object-cover transition group-hover:scale-105"
+                                                        />
+                                                    </div>
+                                                ))}
+                                                {memory.photos.length > 2 && (
+                                                    <div className="absolute right-2 bottom-2 rounded-full bg-black/60 px-2 py-1 text-xs text-white">
+                                                        +{memory.photos.length - 2}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+
+                                        {/* Контент */}
+                                        <div className="p-4">
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-rose-100 text-rose-500 text-xs font-bold">
+                                                    {memory.users?.display_name?.charAt(0) ?? '?'}
+                                                </div>
+                                                <span className="text-xs text-gray-500">{memory.users?.display_name}</span>
+                                                <span className="text-xs text-gray-400">•</span>
+                                                <span className="text-xs text-gray-400">
+                                                    {differenceInDays(new Date(), new Date(memory.date_at))} дн. назад
+                                                </span>
+                                            </div>
+
+                                            <h4 className="font-semibold text-gray-900">{memory.title}</h4>
+                                            {memory.description && (
+                                                <p className="mt-0.5 text-sm text-gray-500 line-clamp-2">{memory.description}</p>
+                                            )}
+
+                                            <div className="mt-2 flex items-center gap-1 text-xs text-gray-400">
+                                                <Calendar className="h-3 w-3" />
+                                                {format(new Date(memory.date_at), 'd MMMM yyyy', { locale: ru })}
+                                            </div>
+                                        </div>
+                                    </Link>
                                 </motion.div>
                             ))}
                         </div>

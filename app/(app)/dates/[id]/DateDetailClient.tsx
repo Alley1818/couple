@@ -6,6 +6,7 @@ import { format, differenceInDays, differenceInHours, differenceInMinutes } from
 import { ru } from 'date-fns/locale';
 import { motion, AnimatePresence } from 'framer-motion';
 import DateChat from '@/components/dates/DateChat';
+import PhotoUpload from '@/components/dates/PhotoUpload';
 import {
   ArrowLeft,
   Calendar,
@@ -261,7 +262,7 @@ export default function DateDetailClient({
                         onChange={(e) => setEditForm({ ...editForm, date_at: e.target.value })}
                         className="w-full rounded-2xl border border-rose-200 bg-white px-4 py-3 text-gray-900 outline-none transition focus:border-rose-400 focus:ring-4 focus:ring-rose-100"
                     />
-                    <p className="mt-1 text-xs text-gray-400">Оставьте пустым — партнёр выберет время</p>
+                    <p className="mt-1 text-xs text-gray-400">Необязательно</p>
                   </div>
 
                   <div>
@@ -270,7 +271,7 @@ export default function DateDetailClient({
                         type="text"
                         value={editForm.location}
                         onChange={(e) => setEditForm({ ...editForm, location: e.target.value })}
-                        placeholder="Например: Ресторан 'Белуга'"
+                        placeholder="Например: Ресторан 'Mamma Mia'"
                         className="w-full rounded-2xl border border-rose-200 bg-white px-4 py-3 text-gray-900 outline-none transition focus:border-rose-400 focus:ring-4 focus:ring-rose-100"
                     />
                   </div>
@@ -292,6 +293,16 @@ export default function DateDetailClient({
                         </div>
                     )}
                   </div>
+
+                  {date.status === 'done' && (
+                      <PhotoUpload
+                          dateId={date.id}
+                          existingPhotos={photos}
+                          onPhotosChange={(newPhotos) => {
+                            router.refresh();
+                          }}
+                      />
+                  )}
 
                   <div>
                     <label className="mb-1.5 block text-sm font-medium text-gray-700">Заметки</label>
